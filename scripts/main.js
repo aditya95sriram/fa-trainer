@@ -108,6 +108,8 @@ function next_sprite() {
 function new_word() {
     pick_new_word();
     init_animation();
+    answer_input.value("");
+    answer_status.html("");
 }
 
 function check_answer() {
