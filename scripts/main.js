@@ -112,12 +112,41 @@ function new_word() {
     answer_status.html("");
 }
 
+// generate version of words with ae, oe, ue, ss -> ä, ö, ü, ß
+function alternate_spellings(word) {
+    let substitutions = {"ae": "ä", "oe": "ö", "ue": "ü", "ss": "ß"}
+    let alternates = [word];
+    for (let [expanded, short] of Object.entries(substitutions)) {
+        let idx = word.indexOf(expanded);
+        let prefix = word.slice(0, idx),
+            suffix = word.slice(idx + expanded.length);
+        if (idx < 0)
+            continue;
+
+        let subalternates = alternate_spellings(suffix);
+        for (let subalternate of subalternates) {
+            alternates.push(prefix + expanded + subalternate);
+            alternates.push(prefix + short + subalternate);
+        }
+    }
+
+    // remove duplicates from alternates
+    alternates = alternates.filter((e, i) => alternates.indexOf(e) === i);
+
+    if (alternates.length > 1)
+        console.debug(`alternate spellings of ${word}: ${alternates}`);
+
+    return alternates;
+}
+
 function check_answer() {
-    let answer = answer_input.value().toLowerCase();
-    if (answer == word) {
-        answer_status.html("richtig!");
-    } else {
-        answer_status.html(`falsch! (${word})`);
+    let answer = answer_input.value().trim().toLowerCase();
+    for (let variant of alternate_spellings(answer)) {
+        if (variant == word) {
+            answer_status.html("richtig!");
+        } else {
+            answer_status.html(`falsch! (${word})`);
+        }
     }
 }
 
