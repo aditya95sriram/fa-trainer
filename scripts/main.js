@@ -14,6 +14,7 @@
 let sprites = {};
 
 // info about current state
+let original_word = undefined;
 let word = undefined;
 let characters = [];
 let cur_idx = 0;
@@ -63,7 +64,8 @@ function deconstruct_word(word) {
 
 function pick_new_word() {
     while (true) {
-        word = random(words).toLowerCase();
+        original_word = random(words)
+        word = original_word.toLowerCase();
         console.debug("word", word);
         characters = deconstruct_word(word);
         if (typeof(characters) === "undefined") {  // deconstruction failed
@@ -141,13 +143,15 @@ function alternate_spellings(word) {
 
 function check_answer() {
     let answer = answer_input.value().trim().toLowerCase();
+    let match_found = false;
     for (let variant of alternate_spellings(answer)) {
         if (variant == word) {
-            answer_status.html("richtig!");
-        } else {
-            answer_status.html(`falsch! (${word})`);
+            match_found = true;
+            break;
         }
     }
+
+    answer_status.html(match_found ? "richtig!" : `falsch! (${original_word})`);
 }
 
 
