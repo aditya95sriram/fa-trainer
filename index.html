@@ -1,16 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
-    <link rel="stylesheet" type="text/css" href="styles/main.css">
-    <meta charset="utf-8" />
 
-  </head>
-  <body>
-    <main>
-    </main>
-    <script src="assets/alphabets.js"></script>
-    <script src="assets/words.js"></script>
-    <script src="scripts/main.js"></script>
-  </body>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles/main.css">
+  <meta charset="utf-8" />
+
+</head>
+
+<body>
+  <div class="header">
+    <h1 class="title">Finger Alphabet Trainer for ÖGS</h1>
+    <a href="https://github.com/aditya95sriram/fa-trainer" target="_blank">
+      <img class="github" src="./assets/GitHub-Mark-120px-plus.png">
+    </a>
+  </div>
+  <main>
+  </main>
+  <div class="interface">
+    <!-- <h2 class="title">Interface</h2> -->
+    <div class="selection">
+      <input id="input" placeholder="Diene Antwort" />
+      <br />
+      <p id="answer"></p>
+      <button id="check" class="">Überprüfen</button>
+      <br />
+      <button id="replay" class="">Wiederholen</button>
+      <br />
+      <button id="next" class="">Neues Wort</button>
+    </div>
+  </div>
+
+  <script src="assets/alphabets.js"></script>
+  <script src="assets/words.js"></script>
+  <script src="scripts/main.js"></script>
+</body>
+
 </html>

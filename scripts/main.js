@@ -38,24 +38,24 @@ function preload() {
 
 function deconstruct_word(word) {
     let characters = [];
-    let i=0;
+    let i = 0;
     while (i < word.length) {
         if (!(word[i] in sprites)) {  // check if sprite exists
             console.warn(`sprite for ${word[i]} not found, skipping "${word}"`);
             return undefined;
-        } 
+        }
 
-        if (word.substring(i, i+3) == "sch") { // check for sch
+        if (word.substring(i, i + 3) == "sch") { // check for sch
             characters.push("sch");
             i += 3;
-        } else if (word[i+1] == word[i]) {  // check for double alphabets
+        } else if (word[i + 1] == word[i]) {  // check for double alphabets
             // todo: handle double alphabets properly
             characters.push(word[i]);
-            characters.push(word[i+1]);
+            characters.push(word[i + 1]);
             i += 2;
         } else {  // just a normal character
             characters.push(word[i]);
-            i +=1;
+            i += 1;
         }
     }
     characters.push("blank");  // sentinel/blank sign
@@ -68,7 +68,7 @@ function pick_new_word() {
         word = original_word.toLowerCase();
         console.debug("word", word);
         characters = deconstruct_word(word);
-        if (typeof(characters) === "undefined") {  // deconstruction failed
+        if (typeof (characters) === "undefined") {  // deconstruction failed
             console.debug("picking new word");
         } else {
             break;
@@ -94,7 +94,7 @@ function next_sprite() {
     // draw current character
     let char = characters[cur_idx];
     // console.debug("next sprite char:", cur_idx, char, sprites[char]);
-    image(sprites[char], 0, 0);
+    image(sprites[char], width / 2 - 215 / 2, 15);
 
     // update frame when next sprite needs to be shown
     next_frame = frameCount + delay;
@@ -110,13 +110,13 @@ function next_sprite() {
 function new_word() {
     pick_new_word();
     init_animation();
-    answer_input.value("");
-    answer_status.html("");
+    answer_input.value = "";
+    answer_status.textContent = "";
 }
 
 // generate version of words with ae, oe, ue, ss -> ä, ö, ü, ß
 function alternate_spellings(word) {
-    let substitutions = {"ae": "ä", "oe": "ö", "ue": "ü", "ss": "ß"}
+    let substitutions = { "ae": "ä", "oe": "ö", "ue": "ü", "ss": "ß" }
     let alternates = [word];
     for (let [expanded, short] of Object.entries(substitutions)) {
         let idx = word.indexOf(expanded);
@@ -142,7 +142,7 @@ function alternate_spellings(word) {
 }
 
 function check_answer() {
-    let answer = answer_input.value().trim().toLowerCase();
+    let answer = answer_input.value.trim().toLowerCase();
     let match_found = false;
     for (let variant of alternate_spellings(answer)) {
         if (variant == word) {
@@ -151,36 +151,39 @@ function check_answer() {
         }
     }
 
-    answer_status.html(match_found ? "richtig!" : `falsch! (${original_word})`);
+    answer_status.textContent = match_found ? "richtig!" : `falsch! (${original_word})`;
 }
 
 
 function setup() {
-    createCanvas(400, 400);
+    createCanvas(windowWidth, windowHeight - 55);
     frameRate(30);
+
+    textSize(50);
+    textAlign(CENTER, CENTER);
 
     // set up user interface
     // input box
-    answer_input = createInput();
-    answer_input.position(0, 400);
-    answer_input.attribute("placeholder", "Deine Antwort");
+    answer_input = document.getElementById("input");
+    answer_input.addEventListener("keydown", function (e) {
+        //checks whether the pressed key is "Enter"
+        if (e.code === "Enter") {
+            check_answer();
+        }
+    });
 
     // buttons
-    let check_button = createButton("Überprüfen");
-    check_button.position(0, 420);
-    check_button.mousePressed(check_answer);
+    let check_button = document.getElementById("check");
+    check_button.addEventListener("mousedown", check_answer);
 
-    let replay_button = createButton("Wiederholen");
-    replay_button.position(0, 440);
-    replay_button.mousePressed(init_animation);
+    let replay_button = document.getElementById("replay");
+    replay_button.addEventListener("mousedown", init_animation);
 
-    let new_word_button = createButton("Neues Wort");
-    new_word_button.position(0, 460);
-    new_word_button.mousePressed(new_word);
+    let new_word_button = document.getElementById("next");
+    new_word_button.addEventListener("mousedown", new_word);
 
     // status
-    answer_status = createP('');
-    answer_status.position(100, 400);
+    answer_status = document.getElementById("answer");
 
     new_word();
 }
