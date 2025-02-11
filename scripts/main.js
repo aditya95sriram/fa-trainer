@@ -164,7 +164,7 @@ function setup() {
 
     // set up user interface
     // input box
-    answer_input = document.getElementById("input");
+    answer_input = document.getElementById("answer");
     answer_input.addEventListener("keydown", function (e) {
         //checks whether the pressed key is "Enter"
         if (e.code === "Enter") {
@@ -183,7 +183,7 @@ function setup() {
     new_word_button.addEventListener("mousedown", new_word);
 
     // status
-    answer_status = document.getElementById("answer");
+    answer_status = document.getElementById("status");
 
     new_word();
 }
