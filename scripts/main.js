@@ -18,15 +18,17 @@ let original_word = undefined;
 let word = undefined;
 let characters = [];
 let cur_idx = 0;
+let answer_correct = false;
 
 // animation properties
 let playing = false;
 let next_frame = Infinity;
+let initial_delay = 20;
 let delay = 20;
 
 // user interface
-let answer_input;
-let answer_status;
+let answer_input;  // html input element
+let answer_status;  // html p element
 
 
 function preload() {
@@ -77,10 +79,16 @@ function pick_new_word() {
     console.debug("new word:", word, characters);
 }
 
+function clear_canvas() {
+    background("white");
+}
+
 function init_animation() {
     playing = true;
     cur_idx = 0;
-    next_frame = frameCount;  // force sprite to be drawn
+    clear_canvas();  // clear any previous sprite
+    // force sprite to be drawn after initial_delay
+    next_frame = frameCount + initial_delay;
 }
 
 function reset_animation() {
@@ -112,6 +120,7 @@ function new_word() {
     init_animation();
     answer_input.value = "";
     answer_status.textContent = "";
+    answer_correct = false;
 }
 
 // generate version of words with ae, oe, ue, ss -> ä, ö, ü, ß
@@ -152,6 +161,7 @@ function check_answer() {
     }
 
     answer_status.textContent = match_found ? "richtig!" : `falsch! (${original_word})`;
+    answer_correct = match_found;
 }
 
 
@@ -168,7 +178,13 @@ function setup() {
     answer_input.addEventListener("keydown", function (e) {
         //checks whether the pressed key is "Enter"
         if (e.code === "Enter") {
-            check_answer();
+            if (answer_correct) {  // if correct, then show next word
+                new_word();
+            } else if (answer_input.value == "") {  // if empty, then repeat
+                init_animation();
+            } else {  // if not empty and not yet checked, then check
+                check_answer();
+            }
         }
     });
 
