@@ -166,7 +166,8 @@ function check_answer() {
 
 
 function setup() {
-    createCanvas(windowWidth, windowHeight - 55);
+    canvas_elem = document.getElementById("sketch");
+    createCanvas(windowWidth, windowHeight - 55, canvas_elem);
     frameRate(30);
 
     textSize(50);
