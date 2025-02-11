@@ -25,6 +25,8 @@ let playing = false;
 let next_frame = Infinity;
 let initial_delay = 20;
 let delay = 20;
+let min_delay = 10;
+let max_delay = 100;
 
 // user interface
 let answer_input;  // html input element
@@ -77,6 +79,11 @@ function pick_new_word() {
         }
     }
     console.debug("new word:", word, characters);
+}
+
+function adjust_delay(delta) {
+    delay = constrain(delay + delta, min_delay, max_delay);
+    console.log("new delay:" + delay);
 }
 
 function clear_canvas() {
@@ -164,7 +171,6 @@ function check_answer() {
     answer_correct = match_found;
 }
 
-
 function setup() {
     canvas_elem = document.getElementById("sketch");
     createCanvas(windowWidth, windowHeight - 55, canvas_elem);
@@ -191,13 +197,22 @@ function setup() {
 
     // buttons
     let check_button = document.getElementById("check");
-    check_button.addEventListener("mousedown", check_answer);
+    check_button.addEventListener("click", check_answer);
 
     let replay_button = document.getElementById("replay");
-    replay_button.addEventListener("mousedown", init_animation);
+    replay_button.addEventListener("click", init_animation);
 
     let new_word_button = document.getElementById("next");
-    new_word_button.addEventListener("mousedown", new_word);
+    new_word_button.addEventListener("click", new_word);
+
+    let slower_button = document.getElementById("slower");
+    slower_button.addEventListener("click", () => {
+        adjust_delay(+10);
+    })
+    let faster_button = document.getElementById("faster");
+    faster_button.addEventListener("click", () => {
+        adjust_delay(-10);
+    })
 
     // status
     answer_status = document.getElementById("status");
