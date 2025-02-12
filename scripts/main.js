@@ -96,6 +96,7 @@ function init_animation() {
     clear_canvas();  // clear any previous sprite
     // force sprite to be drawn after initial_delay
     next_frame = frameCount + initial_delay;
+    loop();
 }
 
 function reset_animation() {
@@ -103,6 +104,7 @@ function reset_animation() {
     cur_idx = 0;
     next_frame = Infinity;
     console.debug("animation reset");
+    noLoop();
 }
 
 function next_sprite() {
