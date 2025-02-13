@@ -20,12 +20,14 @@
   </main>
   <div class="interface">
     <!-- <h2 class="title">Interface</h2> -->
-    <input id="answer" class="double" placeholder="Deine Antwort" />
-    <span id="status" class="double"></span>
-    <button id="check" class="double">Überprüfen</button>
-    <button id="replay" class="double">Wiederholen</button>
-    <button id="next" class="double">Neues Wort</button>
+    <input id="answer" placeholder="Deine Antwort" />
+    <span id="status"></span>
+    <button id="check">Überprüfen</button>
+    <button id="replay">Wiederholen</button>
+    <button id="next">Neues Wort</button>
     <button id="slower">&lt;&lt;</button> <button id="faster">&gt;&gt;</button>
+    <span>min. Alphabet:</span><input id="minlen" type="number"/>
+    <span>max. Alphabet:</span><input id="maxlen" type="number"/>
   </div>
 
   <script src="assets/alphabets.js"></script>

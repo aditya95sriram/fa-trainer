@@ -10,13 +10,14 @@
 // array `words` already defined and imported from assets/words.js
 // todo: clean up words list
 //       - remove multi-word entries
-//       - remove too short entries (<= 2 characters)
 let sprites = {};
 
 // info about current state
 let original_word = undefined;
 let word = undefined;
 let characters = [];
+let words_minlen, words_maxlen;
+let minlen, maxlen;
 let cur_idx = 0;
 let answer_correct = false;
 
@@ -70,15 +71,22 @@ function pick_new_word() {
     while (true) {
         original_word = random(words)
         word = original_word.toLowerCase();
-        console.debug("word", word);
+        console.debug("word:", word);
         characters = deconstruct_word(word);
         if (typeof (characters) === "undefined") {  // deconstruction failed
-            console.debug("picking new word");
-        } else {
-            break;
+            console.debug("deconstruction failed, picking new word");
+        } else {  // deconstruction succeeded
+            let wordlen = characters.length - 1;  // last character always blank
+            if (wordlen < minlen) {
+                console.debug("word too short, picking new word");
+            } else if (wordlen > maxlen) {
+                console.debug("word too long, picking new word");
+            } else {  // successful deconstruction which obeys bounds
+                break;
+            }
         }
     }
-    console.debug("new word:", word, characters);
+    console.info("new word:", word, characters);
 }
 
 function adjust_delay(delta) {
@@ -103,7 +111,7 @@ function reset_animation() {
     playing = false;
     cur_idx = 0;
     next_frame = Infinity;
-    console.debug("animation reset");
+    console.info("animation reset");
     noLoop();
 }
 
@@ -215,6 +223,34 @@ function setup() {
     faster_button.addEventListener("click", () => {
         adjust_delay(-10);
     })
+
+    // handle min/max len input placeholders
+    words_minlen = min(words.map(w => w.length));
+    words_maxlen = max(words.map(w => w.length));
+
+    let minlen_input = document.getElementById("minlen");
+    minlen_input.placeholder = minlen = words_minlen;
+    minlen_input.min = words_minlen;
+    minlen_input.max = words_maxlen;
+    minlen_input.addEventListener("change", function (evt) {
+        maxlen_input.min = minlen = parseInt(evt.target.value) || words_minlen;
+        // if old maxlen is lower than new minlen, update maxlen
+        if (maxlen < minlen)
+            minlen_input.max = maxlen_input.value = maxlen = minlen;
+        console.info("new minlen:", minlen);
+    });
+
+    let maxlen_input = document.getElementById("maxlen");
+    maxlen_input.placeholder = maxlen = words_maxlen;
+    maxlen_input.min = words_minlen;
+    maxlen_input.max = words_maxlen;
+    maxlen_input.addEventListener("change", function (evt) {
+        minlen_input.max = maxlen = parseInt(evt.target.value) || words_maxlen;
+        // if old minlen is higher than new maxlen, update minlen
+        if (minlen > maxlen)
+            maxlen_input.min = minlen_input.value = minlen = maxlen;
+        console.info("new maxlen:", maxlen);
+    });
 
     // status
     answer_status = document.getElementById("status");
