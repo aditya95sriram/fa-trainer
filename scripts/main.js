@@ -8,23 +8,30 @@
 // preloaded stuff
 // array `alphabets` already defined and imported from assets/alphabets.js
 // array `words` already defined and imported from assets/words.js
-// todo: clean up words list
-//       - remove multi-word entries
 let sprites = {};
+const SPRITE_WIDTH = 215, SPRITE_HEIGHT = 265;
+
 
 // info about current state
 let original_word = undefined;
-let word = undefined;
+let word = undefined;  // lower case version of original_word
+// contains characters that constitute the word along with any required motion
 let characters = [];
+let cur_idx = 0;  // index of currently displayed character
+// length of shortest/longest word in entire dataset
 let words_minlen, words_maxlen;
+// length of shortest/longest word as requested by user
 let minlen, maxlen;
-let cur_idx = 0;
-let answer_correct = false;
+let answer_correct = false;  // if answer has been checked and deemed correct
 
 // animation properties
-let playing = false;
-let next_frame = Infinity;
-let initial_delay = 20;
+let playing = false;  // if animation is playing
+let next_frame = Infinity;  // frame at which we switch to next character
+let cur_motion = "none";  // motion of currently displayed character (if any)
+const MAX_XMOTION = SPRITE_WIDTH / 2;  // max horizontal sliding distance
+const MAX_YMOTION = SPRITE_HEIGHT / 3;  // max vertical sliding distance
+let initial_delay = 20;  // delay at start of fingerspelling
+// duration for which each character is displayed (can be changed by user)
 let delay = 20;
 let min_delay = 10;
 let max_delay = 100;
@@ -42,34 +49,54 @@ function preload() {
 
 
 function deconstruct_word(word) {
+    const down_chars = {"ä": "a", "ö": "o", "ü": "u", "ß": "s"};
     let characters = [];
     let i = 0;
     while (i < word.length) {
-        if (!(word[i] in sprites)) {  // check if sprite exists
-            console.warn(`sprite for ${word[i]} not found, skipping "${word}"`);
+        let sprite = word[i] in down_chars ? down_chars[word[i]] : word[i];
+        if (!(sprite in sprites)) {  // check if sprite exists
+            console.warn(`sprite for ${sprite} not found, skipping "${word}"`);
             return undefined;
         }
 
         if (word.substring(i, i + 3) == "sch") { // check for sch
-            characters.push("sch");
+            characters.push({
+                "char": "sch",
+                "motion": "none",
+            });
             i += 3;
         } else if (word[i + 1] == word[i]) {  // check for double alphabets
-            // todo: handle double alphabets properly
-            characters.push(word[i]);
-            characters.push(word[i + 1]);
+            characters.push({
+                "char": sprite,
+                "motion": "right",
+            });
             i += 2;
+        } else if (word[i] in down_chars) {   // check for umlauts and ß
+            characters.push({
+                "char": sprite,
+                "motion": "down",
+            });
+            i += 1;
         } else {  // just a normal character
-            characters.push(word[i]);
+            characters.push({
+                "char": sprite,
+                "motion": "none",
+            });
             i += 1;
         }
     }
-    characters.push("blank");  // sentinel/blank sign
+
+    // sentinel/blank sign
+    characters.push({
+        "char": "blank",
+        "motion": "none",
+    });
     return characters;
 }
 
 function pick_new_word() {
     while (true) {
-        original_word = random(words)
+        original_word = random(words);
         word = original_word.toLowerCase();
         console.debug("word:", word);
         characters = deconstruct_word(word);
@@ -86,7 +113,7 @@ function pick_new_word() {
             }
         }
     }
-    console.info("new word:", word, characters);
+    console.info("new word:", original_word, characters);
 }
 
 function adjust_delay(delta) {
@@ -111,15 +138,18 @@ function reset_animation() {
     playing = false;
     cur_idx = 0;
     next_frame = Infinity;
+    cur_motion = "none";
     console.info("animation reset");
     noLoop();
 }
 
 function next_sprite() {
+    clear_canvas()
     // draw current character
-    let char = characters[cur_idx];
-    // console.debug("next sprite char:", cur_idx, char, sprites[char]);
-    image(sprites[char], width / 2 - 215 / 2, 15);
+    let {char, motion} = characters[cur_idx];
+    // console.debug("next sprite char:", cur_idx, char, motion, sprites[char]);
+    cur_motion = motion;
+    image(sprites[char], width / 2, SPRITE_HEIGHT / 2);
 
     // update frame when next sprite needs to be shown
     next_frame = frameCount + delay;
@@ -128,6 +158,21 @@ function next_sprite() {
     cur_idx += 1;
     if (cur_idx >= characters.length)
         reset_animation();
+}
+
+function move_sprite() {
+    let {char, motion} = characters[cur_idx - 1];
+    let centerx = width / 2, centery = SPRITE_HEIGHT / 2;
+    frame_delta = next_frame - frameCount;
+    let max_motion = motion == "right" ? -MAX_XMOTION : MAX_YMOTION;
+    // frame_delta goes from delay - 1 to 1
+    let shift = lerp(max_motion, 0, (frame_delta - 1) / (delay - 2));
+    if (motion == "right") {
+        centerx += shift;
+    } else {
+        centery += shift;
+    }
+    image(sprites[char], centerx, centery);
 }
 
 
@@ -182,9 +227,12 @@ function check_answer() {
 }
 
 function setup() {
-    canvas_elem = document.getElementById("sketch");
-    createCanvas(windowWidth, windowHeight - 55, canvas_elem);
+    let canvas_width = windowWidth;
+    let canvas_height = SPRITE_HEIGHT + MAX_YMOTION;
+    let canvas_elem = document.getElementById("sketch");
+    createCanvas(canvas_width, canvas_height, canvas_elem);
     frameRate(30);
+    imageMode(CENTER);
 
     textSize(50);
     textAlign(CENTER, CENTER);
@@ -260,6 +308,10 @@ function setup() {
 
 function draw() {
     // no drawing here, otherwise alphabet sprites might get overwritten
-    if (playing && frameCount >= next_frame)
-        next_sprite();
+    if (playing) {
+        if (frameCount >= next_frame)
+            next_sprite();
+        else if (cur_motion != "none")
+            move_sprite();
+    }
 }
