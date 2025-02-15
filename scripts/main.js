@@ -8,7 +8,7 @@
 // preloaded stuff
 // array `alphabets` already defined and imported from assets/alphabets.js
 // array `words` already defined and imported from assets/words.js
-let sprites = {};
+let spritesheet;
 const SPRITE_WIDTH = 215, SPRITE_HEIGHT = 265;
 
 
@@ -42,9 +42,7 @@ let answer_status;  // html p element
 
 
 function preload() {
-    for (let [alphabet, path] of Object.entries(alphabets)) {
-        sprites[alphabet] = loadImage(path);
-    }
+    spritesheet = loadImage("assets/spritesheet.webp")
 }
 
 
@@ -54,7 +52,7 @@ function deconstruct_word(word) {
     let i = 0;
     while (i < word.length) {
         let sprite = word[i] in down_chars ? down_chars[word[i]] : word[i];
-        if (!(sprite in sprites)) {  // check if sprite exists
+        if (!(sprite in alphabets)) {  // check if sprite exists
             console.warn(`sprite for ${sprite} not found, skipping "${word}"`);
             return undefined;
         }
@@ -143,13 +141,19 @@ function reset_animation() {
     noLoop();
 }
 
+function draw_sprite(char, dx, dy) {
+    let dw = SPRITE_WIDTH, dh = SPRITE_HEIGHT;
+    let {x: sx, y: sy} = alphabets[char];
+    image(spritesheet, dx, dy, dw, dh, sx, sy, dw, dh);
+}
+
 function next_sprite() {
     clear_canvas()
     // draw current character
     let {char, motion} = characters[cur_idx];
     // console.debug("next sprite char:", cur_idx, char, motion, sprites[char]);
     cur_motion = motion;
-    image(sprites[char], width / 2, SPRITE_HEIGHT / 2);
+    draw_sprite(char, width / 2, SPRITE_HEIGHT / 2);
 
     // update frame when next sprite needs to be shown
     next_frame = frameCount + delay;
@@ -172,7 +176,7 @@ function move_sprite() {
     } else {
         centery += shift;
     }
-    image(sprites[char], centerx, centery);
+    draw_sprite(char, centerx, centery);
 }
 
 
