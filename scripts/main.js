@@ -16,6 +16,7 @@ const SPRITE_WIDTH = 215, SPRITE_HEIGHT = 265;
 // info about current state
 let original_word = undefined;
 let word = undefined;  // lower case version of original_word
+let alt_alphabets = false;
 // contains characters that constitute the word along with any required motion
 let characters = [];
 let cur_idx = 0;  // index of currently displayed character
@@ -97,6 +98,7 @@ function pick_new_word() {
     while (true) {
         original_word = random(words);
         word = original_word.toLowerCase();
+        alt_alphabets = random() < 0.7;  // 70% of using alternate alphabets
         console.debug("word:", word);
         characters = deconstruct_word(word);
         if (typeof (characters) === "undefined") {  // deconstruction failed
@@ -112,7 +114,7 @@ function pick_new_word() {
             }
         }
     }
-    console.info("new word:", original_word, characters);
+    console.info("new word:", original_word, characters, alt_alphabets);
 }
 
 function adjust_delay(delta) {
@@ -144,7 +146,11 @@ function reset_animation() {
 
 function draw_sprite(char, dx, dy) {
     let dw = SPRITE_WIDTH, dh = SPRITE_HEIGHT;
-    let {x: sx, y: sy} = alphabets[char];
+    let variations = alphabets[char];
+    let var_idx = 0;
+    if (variations.length > 1 && alt_alphabets)
+        var_idx = 1;
+    let {x: sx, y: sy} = variations[var_idx];
     image(spritesheet, dx, dy, dw, dh, sx, sy, dw, dh);
 }
 

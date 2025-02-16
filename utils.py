@@ -48,14 +48,20 @@ def pack_sprites():
 
     # write sprite locations to alphabets.js
     sprite_locs = ASSETS / "alphabets.js"
+    data = dict()
+    for idx, sprite in enumerate(sprites):
+        x = SPRITE_WIDTH * (idx % num_cols)
+        y = SPRITE_HEIGHT * (idx // num_cols)
+        alphabet = sprite.stem.rstrip("1234567890")
+        # print(alphabet, idx % num_cols, idx // num_cols, x, y)
+        if alphabet not in data:
+            data[alphabet] = []
+        data[alphabet].append(dict(x=x, y=y))
+
     with open(sprite_locs, 'w') as f:
         f.write("alphabets={\n")
-        for idx, sprite in enumerate(sprites):
-            x = SPRITE_WIDTH * (idx % num_cols)
-            y = SPRITE_HEIGHT * (idx // num_cols)
-            alphabet = sprite.stem
-            # print(alphabet, idx % num_cols, idx // num_cols, x, y)
-            f.write(f'"{alphabet}": {{"x": {x}, "y": {y}}},\n')
+        for alphabet, locs in data.items():
+            f.write(f'"{alphabet}": {locs},\n')
         f.write("}\n")
     print("sprite locations written to", sprite_locs)
 
