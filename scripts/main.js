@@ -1,6 +1,7 @@
 // references:
 // - https://asl.ms/ (main inspiration)
 // - https://docs.signdict.org/dgs/4_fingeralphabet/ (sprites)
+// - https://www.handscom.at/shop.php (ögs specific sprites)
 // - https://github.com/qu1queee/commongermanwords (pointer to wordlist)
 // - http://web.archive.org/web/20170227200416/http://wortschatz.uni-leipzig.de/html/wliste.html (original wordlist)
 
