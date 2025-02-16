@@ -182,6 +182,7 @@ function move_sprite() {
 
 // convenience function
 function new_word() {
+    reset_animation();
     pick_new_word();
     init_animation();
     answer_input.value = "";
